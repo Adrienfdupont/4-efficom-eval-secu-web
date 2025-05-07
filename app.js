@@ -6,6 +6,7 @@ const messageRouter = require('./route/message.route.js');
 const roleRouter = require('./route/role.route.js');
 const {connect} = require('./framework/connection.js');
 const sync = require('./framework/sync.js');
+const limiter = require('./middleware/limiter.middleware.js')
 
 const database = async () => {
     await connect();
@@ -15,6 +16,7 @@ const database = async () => {
 database();
 
 app.use(express.json());
+app.use(limiter);
 
 app.use('/user',userRouter);
 app.use('/auth',authRouter);

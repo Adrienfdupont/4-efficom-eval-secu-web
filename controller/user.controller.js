@@ -34,12 +34,38 @@ const create = async (req, res, next) => {
     }
 }
 
-const update = (req, res, next) => {
-    let result = User.updateOne(req.body, { id: req.params.id });
+const update = async (req, res, next) => {
+    let userToUpdate = await User.findOne({
+        where: {
+            id: req.body.id
+        }
+    });
+    if(userToUpdate.userId !== req.payload.id){
+        res.status(403).json({error: "You cannot perform this action"});
+    }
+    if (req.body.email) {
+      userToUpdate.email = req.body.email;
+    }
+    if (req.body.password) {
+        try {
+            userToUpdate.password = bcrypt.hashSync(req.body.password, 10)
+        } catch (e) {
+            return res.status(400).json({ error: "Error: cannot generate hash for password" });
+        }
+    }
+    let result = User.updateOne(userToUpdate, { id: req.params.id });
     res.status(201).json(result);
 }
 
-const remove = (req, res, next) => {
+const remove = async (req, res, next) => {
+    const userToRemove = await User.findOne({
+        where: {
+            id: req.params.id
+        }
+    });
+    if(userToUpdate.userId !== req.payload.id){
+        res.status(403).json({error: "You cannot perform this action"});
+    }
     let result = User.remove(req.params.id);
     res.status(200).json(result);
 }
